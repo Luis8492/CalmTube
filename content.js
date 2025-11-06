@@ -1,0 +1,191 @@
+(() => {
+  // ---- config ----
+  const OVERLAY_IMG = chrome.runtime.getURL("overlay.png"); // 差し替え可
+  const OVERLAY_OPACITY = 0.95;
+
+  let overlayEl = null;
+  let observing = false;
+  let skipTimer = null;
+  let navBound = false;
+
+  // ミュート制御でユーザー設定を壊さない
+  let weMuted = false;
+  let prevMuted = null;
+
+  function getPlayer() {
+    // YouTubeのプレイヤーコンテナ
+    return document.getElementById("movie_player") || document.querySelector("ytd-player");
+  }
+
+  function getVideoEl() {
+    return document.querySelector("video.html5-main-video") || document.querySelector("video");
+  }
+
+  function isAdShowing() {
+    // YouTubeは広告中に #movie_player に ad-showing クラスを付与
+    // 参考: プレイヤー要素のclassNameに "ad-showing" が含まれる
+    const p = getPlayer();
+    return p && p.classList.contains("ad-showing");
+  }
+
+  function ensureOverlay() {
+    if (overlayEl) return overlayEl;
+    const p = getPlayer();
+    if (!p) return null;
+
+    overlayEl = document.createElement("div");
+    overlayEl.style.position = "absolute";
+    overlayEl.style.inset = "0";
+    overlayEl.style.display = "none";
+    overlayEl.style.zIndex = "9999";
+    overlayEl.style.pointerEvents = "none"; // SkipクリックなどのUIを邪魔しない
+    overlayEl.style.background = `rgba(0,0,0,0) center center / contain no-repeat`;
+    const img = document.createElement("img");
+    img.id = 'ad_overlay_img';
+    img.src = OVERLAY_IMG;
+    img.style.maxWidth = "100%";
+    img.style.maxHeight = "100%";
+    img.style.width = "100%";
+    img.style.height = "100%";
+    img.style.objectFit = "cover";
+    img.style.opacity = String(OVERLAY_OPACITY);
+    overlayEl.appendChild(img);
+    console.log('img overlayed');
+    // プレイヤーの相対配置を保証
+    const host = p.querySelector(".html5-video-container") || p;
+    const hostStyle = getComputedStyle(host);
+    if (hostStyle.position === "static") host.style.position = "relative";
+    host.appendChild(overlayEl);
+    return overlayEl;
+  }
+
+  function showOverlay(show) {
+    const el = ensureOverlay();
+    if (!el) return;
+    el.style.display = show ? "block" : "none";
+  }
+
+  function muteForAd(active) {
+    const v = getVideoEl();
+    if (!v) return;
+    if (active) {
+      if (prevMuted === null) prevMuted = v.muted;
+      if (!v.muted) {
+        v.muted = true;
+        weMuted = true;
+      }
+    } else {
+      // 広告が終わったら、こちらがミュートした場合のみ元に戻す
+      if (weMuted && prevMuted !== null) {
+        v.muted = prevMuted;
+      }
+      prevMuted = null;
+      weMuted = false;
+    }
+  }
+
+  function isClickable(el) {
+    if (!el || !el.isConnected) return false;
+    const cs = getComputedStyle(el);
+    if (cs.display === "none" || cs.visibility !== "visible") return false;
+    if (el.disabled || el.getAttribute("aria-disabled") === "true") return false;
+    const r = el.getBoundingClientRect();
+    return r.width > 0 && r.height > 0;
+  }
+
+  function findSkipBtn() {
+    const root = getPlayer() || document;
+    const selectors = [
+      "button.ytp-skip-ad-button",         // 例: あなたのHTML
+      "button.ytp-ad-skip-button",         // 旧UI
+      ".ytp-ad-skip-button-modern",        // 新UI
+      "button.ytp-ad-overlay-close-button" // オーバーレイクローズ
+    ];
+    for (const sel of selectors) {
+      const el = root.querySelector(sel);
+      if (isClickable(el)) return el;
+    }
+    return null;
+  }
+
+  function clickSkipIfAny() {
+    if (!isAdShowing()) return;
+    const btn = findSkipBtn();
+    if (!btn) return;
+
+    // 実クリック相当のイベント列
+    const opts = { bubbles: true, cancelable: true, view: window };
+    btn.dispatchEvent(new MouseEvent("mouseover", opts));
+    btn.dispatchEvent(new MouseEvent("mousedown", opts));
+    btn.dispatchEvent(new MouseEvent("mouseup", opts));
+    btn.dispatchEvent(new MouseEvent("click", opts));
+  }
+
+  function startSkipWatcher() {
+    if (skipTimer) return;
+    // 軽量ループ。500ms間隔でSkip存在チェック
+    skipTimer = setInterval(clickSkipIfAny, 500);
+  }
+
+  function stopSkipWatcher() {
+    if (skipTimer) {
+      clearInterval(skipTimer);
+      skipTimer = null;
+    }
+  }
+
+  function handleAdState() {
+    const inAd = isAdShowing();
+    muteForAd(inAd);
+    showOverlay(inAd);
+    if (inAd) startSkipWatcher();
+    else stopSkipWatcher();
+  }
+
+  function attachMutationObserver() {
+    if (observing) return;
+    const p = getPlayer() || document.body;
+    if (!p) return;
+    const obs = new MutationObserver(handleAdState);
+    obs.observe(p, { attributes: true, subtree: true, attributeFilter: ["class"] });
+    observing = true;
+  }
+
+  function onNavigated() {
+    // SPA遷移に対応
+    // ページ切替後に要素が入れ替わるので再セット
+    overlayEl = null;
+    observing = false;
+    stopSkipWatcher();
+    setTimeout(() => {
+      attachMutationObserver();
+      handleAdState();
+    }, 800);
+  }
+
+  function bindYtNav() {
+    if (navBound) return;
+    navBound = true;
+    // YouTube SPAナビゲーションイベント
+    window.addEventListener("yt-navigate-finish", onNavigated);
+    // 万一の保険
+    window.addEventListener("popstate", onNavigated);
+    window.addEventListener("yt-navigate-start", onNavigated);
+  }
+
+  function boot() {
+    bindYtNav();
+    attachMutationObserver();
+    // 初期判定
+    handleAdState();
+    // 予備: DOM安定後にもう一度
+    setTimeout(handleAdState, 1500);
+  }
+
+  // DOM準備
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+})();
