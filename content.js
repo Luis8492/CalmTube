@@ -23,9 +23,31 @@
 
   function isAdShowing() {
     // YouTubeは広告中に #movie_player に ad-showing クラスを付与
-    // 参考: プレイヤー要素のclassNameに "ad-showing" が含まれる
+    // ただし一部UIでは ytd-watch-flexy や video 要素に ad-interrupting が付与される。
     const p = getPlayer();
-    return p && p.classList.contains("ad-showing");
+    if (p) {
+      const classes = p.classList;
+      if (classes.contains("ad-showing") || classes.contains("ad-interrupting")) {
+        return true;
+      }
+    }
+
+    const flexy = document.querySelector("ytd-watch-flexy");
+    if (flexy && (flexy.classList.contains("ad-showing") || flexy.classList.contains("ad-interrupting"))) {
+      return true;
+    }
+
+    const video = getVideoEl();
+    if (video && video.classList.contains("ad-interrupting")) {
+      return true;
+    }
+
+    // スキップボタンが出現している場合は広告が流れているとみなす
+    if (findSkipBtn()) {
+      return true;
+    }
+
+    return false;
   }
 
   function ensureOverlay() {
@@ -96,10 +118,12 @@
   function findSkipBtn() {
     const root = getPlayer() || document;
     const selectors = [
-      "button.ytp-skip-ad-button",         // 例: あなたのHTML
-      "button.ytp-ad-skip-button",         // 旧UI
-      ".ytp-ad-skip-button-modern",        // 新UI
-      "button.ytp-ad-overlay-close-button" // オーバーレイクローズ
+      "button.ytp-skip-ad-button",               // 例: あなたのHTML
+      "button.ytp-ad-skip-button",               // 旧UI
+      ".ytp-ad-skip-button-modern",              // 新UI
+      "button.ytp-ad-overlay-close-button",      // オーバーレイクローズ
+      ".ytp-skip-ad-button",                     // 一部UIでbutton以外
+      "[role=\"button\"][class*=\"ytp-ad-skip\"]" // 汎用的なフォールバック
     ];
     for (const sel of selectors) {
       const el = root.querySelector(sel);
