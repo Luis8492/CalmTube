@@ -130,7 +130,7 @@
     if (!btn) return;
 
     // 実クリック相当のイベント列
-    console.log(EXTENSION_LOG_PREFIX+'Clicking Skip button');
+    console.log(EXTENSION_LOG_PREFIX+'Clicking Skip button: '+btn.outerHTML);
     const opts = { bubbles: true, cancelable: true, view: window };
     btn.dispatchEvent(new MouseEvent("mouseover", opts));
     btn.dispatchEvent(new MouseEvent("mousedown", opts));
