@@ -86,22 +86,22 @@
   }
 
   function isClickable(el) {
-    console.log(EXTENSION_LOG_PREFIX+'Checking if clickable...');
+    //console.log(EXTENSION_LOG_PREFIX+'Checking if clickable...');
     if (!el || !el.isConnected) {
-      console.log(EXTENSION_LOG_PREFIX+'Skip not clickable 1');
+      //console.log(EXTENSION_LOG_PREFIX+'Skip not clickable 1');
       return false;
     }
     const cs = getComputedStyle(el);
     if (cs.display === "none" || cs.visibility !== "visible") {
-      console.log(EXTENSION_LOG_PREFIX+'Skip not clickable 2');
+      //console.log(EXTENSION_LOG_PREFIX+'Skip not clickable 2');
       return false
     };
     if (el.disabled || el.getAttribute("aria-disabled") === "true") {
-      console.log(EXTENSION_LOG_PREFIX+'Skip not clickable 3');
+      //console.log(EXTENSION_LOG_PREFIX+'Skip not clickable 3');
       return false;
     }
     const r = el.getBoundingClientRect();
-    console.log(EXTENSION_LOG_PREFIX+'Skip Clickable.');
+    //console.log(EXTENSION_LOG_PREFIX+'Skip Clickable.');
     return r.width > 0 && r.height > 0;
   }
 
