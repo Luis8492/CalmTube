@@ -1,6 +1,6 @@
 (() => {
   // ---- config ----
-  const OVERLAY_IMG = chrome.runtime.getURL("overlay.png"); // 差し替え可
+  const OVERLAY_IMG = chrome.runtime.getURL("overlay.png");
   const OVERLAY_OPACITY = 0.95;
   const EXTENSION_LOG_PREFIX = '[YANS] ';
   let overlayEl = null;
@@ -8,13 +8,12 @@
   let skipTimer = null;
   let navBound = false;
 
-  // ミュート制御でユーザー設定を壊さない
+  // User mute setting holder
   let weMuted = false;
   let prevMuted = null;
   let prevDisplay = null;
 
   function getPlayer() {
-    // YouTubeのプレイヤーコンテナ
     return document.getElementById("movie_player") || document.querySelector("ytd-player");
   }
 
@@ -23,8 +22,6 @@
   }
 
   function isAdShowing() {
-    // YouTubeは広告中に #movie_player に ad-showing クラスを付与
-    // 参考: プレイヤー要素のclassNameに "ad-showing" が含まれる
     const p = getPlayer();
     return p && p.classList.contains("ad-showing");
   }
@@ -82,7 +79,6 @@
         weMuted = true;
       }
     } else {
-      // 広告が終わったら、こちらがミュートした場合のみ元に戻す
       if (weMuted && prevMuted !== null) {
         v.muted = prevMuted;
       }
@@ -90,6 +86,7 @@
       weMuted = false;
     }
   }
+  
   function hideAd(active){
     const v = getVideoEl();
     if (!v) return;
@@ -122,10 +119,10 @@
   function findSkipBtn() {
     const root = getPlayer() || document;
     const selectors = [
-      "button.ytp-skip-ad-button",         // 例: あなたのHTML
-      "button.ytp-ad-skip-button",         // 旧UI
-      ".ytp-ad-skip-button-modern",        // 新UI
-      "button.ytp-ad-overlay-close-button" // オーバーレイクローズ
+      "button.ytp-skip-ad-button",
+      "button.ytp-ad-skip-button",
+      ".ytp-ad-skip-button-modern",
+      "button.ytp-ad-overlay-close-button"
     ];
     for (const sel of selectors) {
       const el = root.querySelector(sel);
@@ -147,7 +144,7 @@
       console.log(EXTENSION_LOG_PREFIX+'isTrusted:'+e.isTrusted);
     });
 
-    // 実クリック相当のイベント列
+    //click-ish. I cannnot make it to "isTrusted=true".
     const rect = btn.getBoundingClientRect();
     const clientX = rect.left + rect.width / 2;
     const clientY = rect.top + rect.height / 2;
@@ -233,7 +230,6 @@
 
   function startSkipWatcher() {
     if (skipTimer) return;
-    // 軽量ループ。500ms間隔でSkip存在チェック
     skipTimer = setInterval(clickSkipIfAny, 500);
   }
 
@@ -267,8 +263,7 @@
   }
 
   function onNavigated() {
-    // SPA遷移に対応
-    // ページ切替後に要素が入れ替わるので再セット
+    // catch SPA transition
     if (overlayEl && overlayEl.parentNode) {
       overlayEl.parentNode.removeChild(overlayEl);
     }
@@ -284,9 +279,7 @@
   function bindYtNav() {
     if (navBound) return;
     navBound = true;
-    // YouTube SPAナビゲーションイベント
     window.addEventListener("yt-navigate-finish", onNavigated);
-    // 万一の保険
     window.addEventListener("popstate", onNavigated);
     window.addEventListener("yt-navigate-start", onNavigated);
   }
@@ -294,16 +287,15 @@
   function boot() {
     bindYtNav();
     attachMutationObserver();
-    // 初期判定
     handleAdState();
-    // 予備: DOM安定後にもう一度
+    // just in case.
     setTimeout(handleAdState, 1500);
   }
-
-  // DOM準備
+  
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", boot);
   } else {
     boot();
   }
 })();
+
