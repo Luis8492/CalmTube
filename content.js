@@ -131,11 +131,50 @@
 
     // 実クリック相当のイベント列
     console.log(EXTENSION_LOG_PREFIX+'Clicking Skip button: '+btn.outerHTML);
-    const opts = { bubbles: true, cancelable: true, view: window };
-    btn.dispatchEvent(new MouseEvent("mouseover", opts));
-    btn.dispatchEvent(new MouseEvent("mousedown", opts));
-    btn.dispatchEvent(new MouseEvent("mouseup", opts));
-    btn.dispatchEvent(new MouseEvent("click", opts));
+    const rect = btn.getBoundingClientRect();
+    const clientX = rect.left + rect.width / 2;
+    const clientY = rect.top + rect.height / 2;
+    const baseOpts = {
+      bubbles: true,
+      cancelable: true,
+      composed: true,
+      view: window,
+      detail: 1,
+      button: 0,
+      buttons: 1,
+      clientX,
+      clientY,
+      screenX: window.screenX + clientX,
+      screenY: window.screenY + clientY
+    };
+
+    if (typeof PointerEvent === "function") {
+      const pointerOpts = {
+        ...baseOpts,
+        pointerId: 1,
+        pointerType: "mouse",
+        isPrimary: true
+      };
+      btn.dispatchEvent(new PointerEvent("pointerover", pointerOpts));
+      btn.dispatchEvent(new PointerEvent("pointerenter", pointerOpts));
+      btn.dispatchEvent(new PointerEvent("pointerdown", pointerOpts));
+      btn.dispatchEvent(new PointerEvent("pointerup", pointerOpts));
+    }
+
+    const mouseOver = new MouseEvent("mouseover", baseOpts);
+    const mouseDown = new MouseEvent("mousedown", baseOpts);
+    const mouseUp = new MouseEvent("mouseup", baseOpts);
+    const mouseClick = new MouseEvent("click", baseOpts);
+    btn.dispatchEvent(mouseOver);
+    btn.dispatchEvent(mouseDown);
+    btn.dispatchEvent(mouseUp);
+    if (
+      mouseClick.defaultPrevented ||
+      !btn.dispatchEvent(mouseClick)
+    ) {
+      // fall back to DOM click if the synthesized click was prevented
+      btn.click();
+    }
   }
 
   function startSkipWatcher() {
