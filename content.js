@@ -106,7 +106,7 @@
   }
 
   function findSkipBtn() {
-    console.log(EXTENSION_LOG_PREFIX+'Looking fir skip button....');
+    //console.log(EXTENSION_LOG_PREFIX+'Looking fir skip button....');
     const root = getPlayer() || document;
     const selectors = [
       "button.ytp-skip-ad-button",         // 例: あなたのHTML
@@ -117,7 +117,7 @@
     for (const sel of selectors) {
       const el = root.querySelector(sel);
       if (isClickable(el)) {
-        console.log(EXTENSION_LOG_PREFIX+'skip button detected.');
+        //console.log(EXTENSION_LOG_PREFIX+'skip button detected.');
         return el;
       }
     }
@@ -129,13 +129,95 @@
     const btn = findSkipBtn();
     if (!btn) return;
 
+    //isTrusted Checker.
+    btn.addEventListener("click", (e) => {
+      console.log(EXTENSION_LOG_PREFIX+'isTrusted:'+e.isTrusted);
+    });
+
     // 実クリック相当のイベント列
-    console.log(EXTENSION_LOG_PREFIX+'Clicking Skip button: '+btn.outerHTML);
-    const opts = { bubbles: true, cancelable: true, view: window };
-    btn.dispatchEvent(new MouseEvent("mouseover", opts));
-    btn.dispatchEvent(new MouseEvent("mousedown", opts));
-    btn.dispatchEvent(new MouseEvent("mouseup", opts));
-    btn.dispatchEvent(new MouseEvent("click", opts));
+    console.log(EXTENSION_LOG_PREFIX+'Clicking Skip button.');
+    const rect = btn.getBoundingClientRect();
+    const clientX = rect.left + rect.width / 2;
+    const clientY = rect.top + rect.height / 2;
+    const baseOpts = {
+      bubbles: true,
+      cancelable: true,
+      composed: true,
+      view: window,
+      clientX,
+      clientY,
+      screenX: window.screenX + clientX,
+      screenY: window.screenY + clientY
+    };
+
+    if (typeof PointerEvent === "function") {
+      const pointerOpts = {
+        ...baseOpts,
+        pointerId: 1,
+        pointerType: "mouse",
+        isPrimary: true
+      };
+      btn.dispatchEvent(new PointerEvent("pointerover", {
+        ...pointerOpts,
+        button: -1,
+        buttons: 0,
+        detail: 0
+      }));
+      btn.dispatchEvent(new PointerEvent("pointerenter", {
+        ...pointerOpts,
+        button: -1,
+        buttons: 0,
+        detail: 0
+      }));
+      btn.dispatchEvent(new PointerEvent("pointerdown", {
+        ...pointerOpts,
+        button: 0,
+        buttons: 1,
+        detail: 1
+      }));
+      btn.dispatchEvent(new PointerEvent("pointerup", {
+        ...pointerOpts,
+        button: 0,
+        buttons: 0,
+        detail: 0
+      }));
+    }
+
+    const mouseOver = new MouseEvent("mouseover", {
+      ...baseOpts,
+      button: 0,
+      buttons: 0,
+      detail: 0
+    });
+    const mouseDown = new MouseEvent("mousedown", {
+      ...baseOpts,
+      button: 0,
+      buttons: 1,
+      detail: 1
+    });
+    const mouseUp = new MouseEvent("mouseup", {
+      ...baseOpts,
+      button: 0,
+      buttons: 0,
+      detail: 0
+    });
+    const mouseClick = new MouseEvent("click", {
+      ...baseOpts,
+      button: 0,
+      buttons: 0,
+      detail: 1
+    });
+    btn.dispatchEvent(mouseOver);
+    btn.dispatchEvent(mouseDown);
+    btn.dispatchEvent(mouseUp);
+    if (
+      mouseClick.defaultPrevented ||
+      !btn.dispatchEvent(mouseClick)
+    ) {
+      // fall back to DOM click if the synthesized click was prevented
+      console.log(EXTENSION_LOG_PREFIX+'Falling back to DOM click');
+      btn.click();
+    }
   }
 
   function startSkipWatcher() {
