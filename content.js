@@ -12,6 +12,7 @@
   // ミュート制御でユーザー設定を壊さない
   let weMuted = false;
   let prevMuted = null;
+  let prevDisplay = null;
 
   function getPlayer() {
     // YouTubeのプレイヤーコンテナ
@@ -30,6 +31,7 @@
   }
 
   function ensureOverlay() {
+    //Not Working
     if (overlayEl) return overlayEl;
     const p = getPlayer();
     if (!p) return null;
@@ -70,7 +72,9 @@
     const v = getVideoEl();
     if (!v) return;
     if (active) {
-      if (prevMuted === null) prevMuted = v.muted;
+      if (prevMuted === null) {
+        prevMuted = v.muted;
+      }
       if (!v.muted) {
         v.muted = true;
         weMuted = true;
@@ -82,6 +86,19 @@
       }
       prevMuted = null;
       weMuted = false;
+    }
+  }
+  function hideAd(active){
+    const v = getVideoEl();
+    if (!v) return;
+    if (active) {
+      if (prevDisplay === null) {
+        prevDisplay = v.style.display;
+      }
+      v.style.display = 'none';
+    } else {
+      v.style.display = prevDisplay;
+      prevDisplay = null;
     }
   }
 
@@ -125,6 +142,7 @@
   }
 
   function clickSkipIfAny() {
+    //Not Working
     if (!isAdShowing()) return;
     const btn = findSkipBtn();
     if (!btn) return;
@@ -233,9 +251,14 @@
     }
   }
 
+  function disableAd(inAd) {
+    muteForAd(inAd);
+    hideAd(inAd);
+  }
+
   function handleAdState() {
     const inAd = isAdShowing();
-    muteForAd(inAd);
+    disableAd(inAd);
     showOverlay(inAd);
     if (inAd) startSkipWatcher();
     else stopSkipWatcher();
