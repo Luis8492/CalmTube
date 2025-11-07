@@ -32,11 +32,15 @@
 
   function ensureOverlay() {
     //Not Working
-    if (overlayEl) return overlayEl;
+    if (overlayEl && overlayEl.isConnected) return overlayEl;
+    if (overlayEl && overlayEl.parentNode) {
+      overlayEl.parentNode.removeChild(overlayEl);
+    }
     const p = getPlayer();
     if (!p) return null;
 
     overlayEl = document.createElement("div");
+    overlayEl.dataset.yansOverlay = "";
     overlayEl.style.position = "absolute";
     overlayEl.style.inset = "0";
     overlayEl.style.display = "none";
@@ -276,6 +280,9 @@
   function onNavigated() {
     // SPA遷移に対応
     // ページ切替後に要素が入れ替わるので再セット
+    if (overlayEl && overlayEl.parentNode) {
+      overlayEl.parentNode.removeChild(overlayEl);
+    }
     overlayEl = null;
     observing = false;
     stopSkipWatcher();
