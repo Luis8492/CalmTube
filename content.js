@@ -144,9 +144,6 @@
       cancelable: true,
       composed: true,
       view: window,
-      detail: 1,
-      button: 0,
-      buttons: 1,
       clientX,
       clientY,
       screenX: window.screenX + clientX,
@@ -160,16 +157,56 @@
         pointerType: "mouse",
         isPrimary: true
       };
-      btn.dispatchEvent(new PointerEvent("pointerover", pointerOpts));
-      btn.dispatchEvent(new PointerEvent("pointerenter", pointerOpts));
-      btn.dispatchEvent(new PointerEvent("pointerdown", pointerOpts));
-      btn.dispatchEvent(new PointerEvent("pointerup", pointerOpts));
+      btn.dispatchEvent(new PointerEvent("pointerover", {
+        ...pointerOpts,
+        button: -1,
+        buttons: 0,
+        detail: 0
+      }));
+      btn.dispatchEvent(new PointerEvent("pointerenter", {
+        ...pointerOpts,
+        button: -1,
+        buttons: 0,
+        detail: 0
+      }));
+      btn.dispatchEvent(new PointerEvent("pointerdown", {
+        ...pointerOpts,
+        button: 0,
+        buttons: 1,
+        detail: 1
+      }));
+      btn.dispatchEvent(new PointerEvent("pointerup", {
+        ...pointerOpts,
+        button: 0,
+        buttons: 0,
+        detail: 0
+      }));
     }
 
-    const mouseOver = new MouseEvent("mouseover", baseOpts);
-    const mouseDown = new MouseEvent("mousedown", baseOpts);
-    const mouseUp = new MouseEvent("mouseup", baseOpts);
-    const mouseClick = new MouseEvent("click", baseOpts);
+    const mouseOver = new MouseEvent("mouseover", {
+      ...baseOpts,
+      button: 0,
+      buttons: 0,
+      detail: 0
+    });
+    const mouseDown = new MouseEvent("mousedown", {
+      ...baseOpts,
+      button: 0,
+      buttons: 1,
+      detail: 1
+    });
+    const mouseUp = new MouseEvent("mouseup", {
+      ...baseOpts,
+      button: 0,
+      buttons: 0,
+      detail: 0
+    });
+    const mouseClick = new MouseEvent("click", {
+      ...baseOpts,
+      button: 0,
+      buttons: 0,
+      detail: 1
+    });
     btn.dispatchEvent(mouseOver);
     btn.dispatchEvent(mouseDown);
     btn.dispatchEvent(mouseUp);
