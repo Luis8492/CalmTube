@@ -106,7 +106,7 @@
   }
 
   function findSkipBtn() {
-    console.log(EXTENSION_LOG_PREFIX+'Looking fir skip button....');
+    //console.log(EXTENSION_LOG_PREFIX+'Looking fir skip button....');
     const root = getPlayer() || document;
     const selectors = [
       "button.ytp-skip-ad-button",         // 例: あなたのHTML
@@ -117,7 +117,7 @@
     for (const sel of selectors) {
       const el = root.querySelector(sel);
       if (isClickable(el)) {
-        console.log(EXTENSION_LOG_PREFIX+'skip button detected.');
+        //console.log(EXTENSION_LOG_PREFIX+'skip button detected.');
         return el;
       }
     }
@@ -129,8 +129,13 @@
     const btn = findSkipBtn();
     if (!btn) return;
 
+    //isTrusted Checker.
+    btn.addEventListener("click", (e) => {
+      console.log(EXTENSION_LOG_PREFIX+'isTrusted:'+e.isTrusted);
+    });
+
     // 実クリック相当のイベント列
-    console.log(EXTENSION_LOG_PREFIX+'Clicking Skip button: '+btn.outerHTML);
+    console.log(EXTENSION_LOG_PREFIX+'Clicking Skip button.');
     const rect = btn.getBoundingClientRect();
     const clientX = rect.left + rect.width / 2;
     const clientY = rect.top + rect.height / 2;
@@ -173,6 +178,7 @@
       !btn.dispatchEvent(mouseClick)
     ) {
       // fall back to DOM click if the synthesized click was prevented
+      console.log(EXTENSION_LOG_PREFIX+'Falling back to DOM click');
       btn.click();
     }
   }
