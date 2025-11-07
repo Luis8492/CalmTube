@@ -25,9 +25,9 @@
     const p = getPlayer();
     return p && p.classList.contains("ad-showing");
   }
-
+  
+  //Not Working Zone Start---------------------------------------------------------------
   function ensureOverlay() {
-    //Not Working
     if (overlayEl && overlayEl.isConnected) return overlayEl;
     if (overlayEl && overlayEl.parentNode) {
       overlayEl.parentNode.removeChild(overlayEl);
@@ -41,7 +41,7 @@
     overlayEl.style.inset = "0";
     overlayEl.style.display = "none";
     overlayEl.style.zIndex = "9999";
-    overlayEl.style.pointerEvents = "none"; // SkipクリックなどのUIを邪魔しない
+    overlayEl.style.pointerEvents = "none";
     overlayEl.style.background = `rgba(0,0,0,0) center center / contain no-repeat`;
     const img = document.createElement("img");
     img.id = 'ad_overlay_img';
@@ -53,54 +53,19 @@
     img.style.objectFit = "cover";
     img.style.opacity = String(OVERLAY_OPACITY);
     overlayEl.appendChild(img);
-    // プレイヤーの相対配置を保証
     const host = p.querySelector(".html5-video-container") || p;
     const hostStyle = getComputedStyle(host);
     if (hostStyle.position === "static") host.style.position = "relative";
     host.appendChild(overlayEl);
     return overlayEl;
   }
-
+  
   function showOverlay(show) {
     const el = ensureOverlay();
     if (!el) return;
     el.style.display = show ? "block" : "none";
   }
-
-  function muteForAd(active) {
-    const v = getVideoEl();
-    if (!v) return;
-    if (active) {
-      if (prevMuted === null) {
-        prevMuted = v.muted;
-      }
-      if (!v.muted) {
-        v.muted = true;
-        weMuted = true;
-      }
-    } else {
-      if (weMuted && prevMuted !== null) {
-        v.muted = prevMuted;
-      }
-      prevMuted = null;
-      weMuted = false;
-    }
-  }
   
-  function hideAd(active){
-    const v = getVideoEl();
-    if (!v) return;
-    if (active) {
-      if (prevDisplay === null) {
-        prevDisplay = v.style.display;
-      }
-      v.style.display = 'none';
-    } else {
-      v.style.display = prevDisplay;
-      prevDisplay = null;
-    }
-  }
-
   function isClickable(el) {
     if (!el || !el.isConnected) {
       return false;
@@ -227,7 +192,7 @@
       btn.click();
     }
   }
-
+  
   function startSkipWatcher() {
     if (skipTimer) return;
     skipTimer = setInterval(clickSkipIfAny, 500);
@@ -239,7 +204,42 @@
       skipTimer = null;
     }
   }
-
+  //Not Working Zone End---------------------------------------------------------------
+  
+  function muteForAd(active) {
+    const v = getVideoEl();
+    if (!v) return;
+    if (active) {
+      if (prevMuted === null) {
+        prevMuted = v.muted;
+      }
+      if (!v.muted) {
+        v.muted = true;
+        weMuted = true;
+      }
+    } else {
+      if (weMuted && prevMuted !== null) {
+        v.muted = prevMuted;
+      }
+      prevMuted = null;
+      weMuted = false;
+    }
+  }
+  
+  function hideAd(active){
+    const v = getVideoEl();
+    if (!v) return;
+    if (active) {
+      if (prevDisplay === null) {
+        prevDisplay = v.style.display;
+      }
+      v.style.display = 'none';
+    } else {
+      v.style.display = prevDisplay;
+      prevDisplay = null;
+    }
+  }
+  
   function disableAd(inAd) {
     muteForAd(inAd);
     hideAd(inAd);
@@ -298,4 +298,5 @@
     boot();
   }
 })();
+
 
