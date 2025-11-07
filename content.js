@@ -1,5 +1,4 @@
 (() => {
-  console.log('started.');
   // ---- config ----
   const OVERLAY_IMG = chrome.runtime.getURL("overlay.png"); // 差し替え可
   const OVERLAY_OPACITY = 0.95;
@@ -57,7 +56,6 @@
     img.style.objectFit = "cover";
     img.style.opacity = String(OVERLAY_OPACITY);
     overlayEl.appendChild(img);
-    console.log(EXTENSION_LOG_PREFIX+'img overlayed');
     // プレイヤーの相対配置を保証
     const host = p.querySelector(".html5-video-container") || p;
     const hostStyle = getComputedStyle(host);
@@ -107,27 +105,21 @@
   }
 
   function isClickable(el) {
-    //console.log(EXTENSION_LOG_PREFIX+'Checking if clickable...');
     if (!el || !el.isConnected) {
-      //console.log(EXTENSION_LOG_PREFIX+'Skip not clickable 1');
       return false;
     }
     const cs = getComputedStyle(el);
     if (cs.display === "none" || cs.visibility !== "visible") {
-      //console.log(EXTENSION_LOG_PREFIX+'Skip not clickable 2');
       return false
     };
     if (el.disabled || el.getAttribute("aria-disabled") === "true") {
-      //console.log(EXTENSION_LOG_PREFIX+'Skip not clickable 3');
       return false;
     }
     const r = el.getBoundingClientRect();
-    //console.log(EXTENSION_LOG_PREFIX+'Skip Clickable.');
     return r.width > 0 && r.height > 0;
   }
 
   function findSkipBtn() {
-    //console.log(EXTENSION_LOG_PREFIX+'Looking fir skip button....');
     const root = getPlayer() || document;
     const selectors = [
       "button.ytp-skip-ad-button",         // 例: あなたのHTML
@@ -138,7 +130,6 @@
     for (const sel of selectors) {
       const el = root.querySelector(sel);
       if (isClickable(el)) {
-        //console.log(EXTENSION_LOG_PREFIX+'skip button detected.');
         return el;
       }
     }
@@ -157,7 +148,6 @@
     });
 
     // 実クリック相当のイベント列
-    console.log(EXTENSION_LOG_PREFIX+'Clicking Skip button.');
     const rect = btn.getBoundingClientRect();
     const clientX = rect.left + rect.width / 2;
     const clientY = rect.top + rect.height / 2;
@@ -237,7 +227,6 @@
       !btn.dispatchEvent(mouseClick)
     ) {
       // fall back to DOM click if the synthesized click was prevented
-      console.log(EXTENSION_LOG_PREFIX+'Falling back to DOM click');
       btn.click();
     }
   }
