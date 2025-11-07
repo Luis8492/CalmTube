@@ -1,4 +1,5 @@
 (() => {
+  console.log('started.');
   // ---- config ----
   const OVERLAY_IMG = chrome.runtime.getURL("overlay.png"); // 差し替え可
   const OVERLAY_OPACITY = 0.95;
