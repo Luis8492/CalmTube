@@ -12,7 +12,7 @@
   // ミュート制御でユーザー設定を壊さない
   let weMuted = false;
   let prevMuted = null;
-  let prevDisplay = null;
+  let prevVideoStyles = null;
 
   function getPlayer() {
     // YouTubeのプレイヤーコンテナ
@@ -96,13 +96,30 @@
     const v = getVideoEl();
     if (!v) return;
     if (active) {
-      if (prevDisplay === null) {
-        prevDisplay = v.style.display;
+      if (!prevVideoStyles) {
+        prevVideoStyles = {
+          display: v.style.display,
+          visibility: v.style.visibility,
+          opacity: v.style.opacity,
+          pointerEvents: v.style.pointerEvents
+        };
       }
-      v.style.display = 'none';
+      v.style.visibility = 'hidden';
+      v.style.opacity = '0';
+      v.style.pointerEvents = 'none';
     } else {
-      v.style.display = prevDisplay;
-      prevDisplay = null;
+      if (prevVideoStyles) {
+        v.style.display = prevVideoStyles.display;
+        v.style.visibility = prevVideoStyles.visibility;
+        v.style.opacity = prevVideoStyles.opacity;
+        v.style.pointerEvents = prevVideoStyles.pointerEvents;
+      } else {
+        v.style.removeProperty('display');
+        v.style.removeProperty('visibility');
+        v.style.removeProperty('opacity');
+        v.style.removeProperty('pointer-events');
+      }
+      prevVideoStyles = null;
     }
   }
 
