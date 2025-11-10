@@ -2,12 +2,13 @@
   "manifest_version": 3,
   "name": "YouTube Ad Muter + Auto Skip",
   "version": "0.1.0",
-  "description": "広告中はミュートし、プレイヤーを非表示にし、Skipが出たら自動クリックする。",
+  "description": "Mute & hide the video while the ad on youtube.",
   "permissions": [],
   "host_permissions": [
     "https://www.youtube.com/*",
     "https://m.youtube.com/*"
   ],
+
   "content_scripts": [
     {
       "matches": [
