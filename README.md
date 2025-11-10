@@ -1,4 +1,6 @@
-# YouTube-Ad-Non-Skipper  
+👉 [Support the project](https://buymeacoffee.com/luis8492)
+
+# CalmTube
 
 Stay focused — not frustrated.  
 This Chrome extension doesn’t block or skip YouTube ads. It simply turns them into silence and darkness until your video resumes.  
@@ -26,4 +28,4 @@ YouTube keeps its ads. You keep your calm. The extension detects ad segments, mu
 This project is about *minimizing noise*, not breaking rules.  
 It never blocks or skips ads - just helps you stay focused until the real content returns.  
 
-👉 [Support the project](https://buymeacoffee.com/luis8492)
+
