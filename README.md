@@ -10,12 +10,16 @@ This Chrome extension doesn’t block or skip YouTube ads. It simply turns them 
 **Respectful, distraction-free watching.**
 YouTube keeps its ads. You keep your calm. The extension detects ad segments, mutes them, and hides the video element until the ad ends.
 
-## ✦ Features  
+## ✦ Features
 
-- **Automatic ad detection** – Listens to player state changes and instantly knows when an ad starts.  
+- **Automatic ad detection** – Listens to player state changes and instantly knows when an ad starts.
 - **Ad hiding** – Temporarily removes the ad video element so you aren’t distracted by motion.
-- **Ad muting** – Cuts the sound while the ad runs.  
-- **Automatic restoration** – Brings back the original picture and volume the moment content resumes.  
+- **Ad muting** – Cuts the sound while the ad runs.
+- **Automatic restoration** – Brings back the original picture and volume the moment content resumes.
+
+## ✦ Updates
+
+- Removed the experimental skip-button search and auto-click logic so the extension now focuses entirely on muting and hiding ads.
 
 ## ✦ Roadmap  
 
