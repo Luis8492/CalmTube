@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "YouTube Ad Overlay + Auto Skip",
+  "name": "YouTube Ad Muter + Auto Skip",
   "version": "0.1.0",
-  "description": "広告中はミュートし、プレイヤー上に静止画を重ね、Skipが出たら自動クリックする。",
+  "description": "広告中はミュートし、プレイヤーを非表示にし、Skipが出たら自動クリックする。",
   "permissions": [],
   "host_permissions": [
     "https://www.youtube.com/*",
@@ -16,15 +16,6 @@
       ],
       "js": ["content.js"],
       "run_at": "document_idle"
-    }
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": ["overlay.png"],
-      "matches": [
-        "https://www.youtube.com/*",
-        "https://m.youtube.com/*"
-      ]
     }
   ]
 }

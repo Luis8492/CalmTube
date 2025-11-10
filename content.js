@@ -1,9 +1,6 @@
 (() => {
   // ---- config ----
-  const OVERLAY_IMG = chrome.runtime.getURL("overlay.png");
-  const OVERLAY_OPACITY = 0.95;
   const EXTENSION_LOG_PREFIX = '[YANS] ';
-  let overlayEl = null;
   let observing = false;
   let skipTimer = null;
   let navBound = false;
@@ -27,45 +24,6 @@
   }
   
   //Not Working Zone Start---------------------------------------------------------------
-  function ensureOverlay() {
-    if (overlayEl && overlayEl.isConnected) return overlayEl;
-    if (overlayEl && overlayEl.parentNode) {
-      overlayEl.parentNode.removeChild(overlayEl);
-    }
-    const p = getPlayer();
-    if (!p) return null;
-
-    overlayEl = document.createElement("div");
-    overlayEl.dataset.yansOverlay = "";
-    overlayEl.style.position = "absolute";
-    overlayEl.style.inset = "0";
-    overlayEl.style.display = "none";
-    overlayEl.style.zIndex = "9999";
-    overlayEl.style.pointerEvents = "none";
-    overlayEl.style.background = `rgba(0,0,0,0) center center / contain no-repeat`;
-    const img = document.createElement("img");
-    img.id = 'ad_overlay_img';
-    img.src = OVERLAY_IMG;
-    img.style.maxWidth = "100%";
-    img.style.maxHeight = "100%";
-    img.style.width = "100%";
-    img.style.height = "100%";
-    img.style.objectFit = "cover";
-    img.style.opacity = String(OVERLAY_OPACITY);
-    overlayEl.appendChild(img);
-    const host = p.querySelector(".html5-video-container") || p;
-    const hostStyle = getComputedStyle(host);
-    if (hostStyle.position === "static") host.style.position = "relative";
-    host.appendChild(overlayEl);
-    return overlayEl;
-  }
-  
-  function showOverlay(show) {
-    const el = ensureOverlay();
-    if (!el) return;
-    el.style.display = show ? "block" : "none";
-  }
-  
   function isClickable(el) {
     if (!el || !el.isConnected) {
       return false;
@@ -248,7 +206,6 @@
   function handleAdState() {
     const inAd = isAdShowing();
     disableAd(inAd);
-    showOverlay(inAd);
     if (inAd) startSkipWatcher();
     else stopSkipWatcher();
   }
@@ -264,10 +221,6 @@
 
   function onNavigated() {
     // catch SPA transition
-    if (overlayEl && overlayEl.parentNode) {
-      overlayEl.parentNode.removeChild(overlayEl);
-    }
-    overlayEl = null;
     observing = false;
     stopSkipWatcher();
     setTimeout(() => {

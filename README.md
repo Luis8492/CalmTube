@@ -3,23 +3,23 @@
 # CalmTube
 
 Stay focused — not frustrated.  
-This Chrome extension doesn’t block or skip YouTube ads. It simply turns them into silence and darkness until your video resumes.  
+This Chrome extension doesn’t block or skip YouTube ads. It simply turns them into silence and hides the player until your video resumes.
 
 ## ✦ Concept  
 
-**Respectful, distraction-free watching.**  
-YouTube keeps its ads. You keep your calm. The extension detects ad segments, mutes them, and replaces the screen with a quiet black overlay.  
+**Respectful, distraction-free watching.**
+YouTube keeps its ads. You keep your calm. The extension detects ad segments, mutes them, and hides the video element until the ad ends.
 
 ## ✦ Features  
 
 - **Automatic ad detection** – Listens to player state changes and instantly knows when an ad starts.  
-- **Visual blackout** – Hides the ad video completely so you just see a calm, black screen.  
+- **Ad hiding** – Temporarily removes the ad video element so you aren’t distracted by motion.
 - **Ad muting** – Cuts the sound while the ad runs.  
 - **Automatic restoration** – Brings back the original picture and volume the moment content resumes.  
 
 ## ✦ Roadmap  
 
-- **Custom overlays** – Show a static image or looped video instead of the black screen.  
+- **Custom overlays** – Optional imagery in place of the hidden player.
 - **Subtle notifications** – Optional toast messages like “Ad break started” or “Back to content.”  
 - **Lightweight settings UI** – Quick toggles for mute, overlay, and notification behavior.  
 
