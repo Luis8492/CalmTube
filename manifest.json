@@ -9,6 +9,10 @@
     "https://m.youtube.com/*"
   ],
 
+  "icons": {
+    "128": "icon.png"
+  },
+
   "content_scripts": [
     {
       "matches": [
